@@ -1,0 +1,69 @@
+---1 Snowflake data population ------
+#step 1 json format
+create or replace file format myjsonformat
+  type = 'JSON'
+  strip_outer_array = true;
+
+#step 2 stage with json file format and s3 url
+create or replace stage my_s3_stage
+  file_format =myjsonformat
+  url = 's3://tovala-de-coding-challenge';
+
+# step 3 copy data into the table
+copy into json_table
+  from s3://tovala-de-coding-challenge/Ziyu-Huang/NewsAPI_Tovala.json
+  file_format = "json"
+  on_error = 'skip_file';
+
+# step 4 create newsapi table to place json details
+create table newsapi as
+select f.value:source::string as source,f.value:author::string as author, f.value:title::string as title, f.value:description::string as description,
+f.value:url::string as url, f.value:publishedAt::timestamp_ntz as publishedAt
+from json_table,table(flatten(v:articles)) f;
+
+# step 5 query to see the results for json
+select *
+from newsapi;
+
+------2 Data exploration and data analysis--------
+
+1. To get the source ranking to see where it comes most
+select source, count(source) as source_amount
+from newsapi
+group by source
+order by source_amount desc;
+
+2. date counts for keyword related article frequency
+
+select date(publishedat), count(date(publishedat)) as date_counts
+from newsapi
+group by date(publishedat)
+order by date(publishedat) desc;
+
+
+3. counts page visits per session
+select session_id, count(page_visit_id) as session_visit_pages
+from page_visits
+where date(page_visit_start_time) ='2022-12-12'
+group by session_id
+order by session_visit_pages desc;
+
+4. join two read-only table page_visits and sessions to get some insights
+select s.*,p.*
+from sessions s
+inner join page_visits p
+on s.session_id = p.session_id
+where date(page_visit_start_time) between '2022-12-11' and '2022-12-12' and customer_id is not null
+order by page_visit_start_time desc;
+
+
+5. get page vitist per user
+select customer_id, count(page_visit_id) as page_counts_per_user
+from
+(select s.*,p.*
+from sessions s
+inner join page_visits p
+on s.session_id = p.session_id
+where date(page_visit_start_time) = '2022-12-12' and customer_id is not null) as A
+group by (customer_id)
+order by page_counts_per_user desc;
