@@ -89,8 +89,8 @@ class TovalaTools:
             print("There is no table existed to be dropped in the schema")
     def generate_NewsAPI_S3(self):
         query_keyword = 'Tovala OR meal kit OR smart oven&'
-        search_start_date = '2022-12-19&'
-        search_end_date = '2022-12-20&'
+        search_start_date = '2022-12-11&'
+        search_end_date = '2022-12-12&'
 
         url = ('https://newsapi.org/v2/everything?'
                'q='+query_keyword+
