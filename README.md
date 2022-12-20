@@ -38,6 +38,8 @@ Includes two parts: Python command line application and data analysis from resul
 What conclusions can you draw about the keywords you chose and their impact on
 visitors to our site?
 
+Ans: the more articles coming from the keywords, the more page vists per session and per customers, it's positive relation.
+
 ## 5 Query used in the whole program
 
 Please check the file "Tovala_SQL.txt"
